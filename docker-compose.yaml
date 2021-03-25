@@ -36,3 +36,7 @@ services:
       - POSTGRES_USER=postgres
     ports:
       - 5432:5432
+  nats:
+    image: "nats:2"
+    ports:
+      - 4222:4222
