@@ -25,5 +25,5 @@ class BroadcastBackend:
     async def next_published(self) -> Event:
         raise NotImplementedError()
 
-    async def matches(self, channel: str , event: Event) -> bool:
+    def matches(self, channel: str , event: Event) -> bool:
         return event.channel == channel

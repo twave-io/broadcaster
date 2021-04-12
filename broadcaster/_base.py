@@ -77,14 +77,11 @@ class Broadcast:
     async def _listener(self) -> None:
         while True:
             event = await self._backend.next_published()
-            # for queue in list(self._subscribers.get(event.channel, [])):
-            #     await queue.put(event)
-
             for qs in self._maching_queues(event):
                 for queue in qs:
                     await queue.put(event)
 
-    def _maching_queues(self, event) -> List[Any]:
+    def _maching_queues(self, event: Event) -> List[Any]:
         return [queue for channel, queue
                 in self._subscribers.items()
                 if self._backend.matches(channel, event)]
