@@ -32,6 +32,7 @@ class NATSBackend(BroadcastBackend):
         ssid = self._channel_ssids.get(channel)
         if ssid is not None:
             await self._nc.unsubscribe(ssid)
+            del self._channel_ssids[channel]
 
     async def publish(self, channel: str, message: typing.Any) -> None:
         await self._nc.publish(channel, message.encode())
@@ -44,3 +45,8 @@ class NATSBackend(BroadcastBackend):
 
     async def next_published(self) -> Event:
         return await self._listen_queue.get()
+
+    def matches(self, channel: str, event: Event) -> bool:
+        return all(
+            [a == "*" or a == b for (a, b)
+             in list(zip(channel.split("."), event.channel.split(".")))])

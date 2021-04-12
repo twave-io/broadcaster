@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator, AsyncIterator, Dict, Optional
+from typing import Any, AsyncGenerator, AsyncIterator, Dict, Optional, List
 from urllib.parse import urlparse
 
 
@@ -77,8 +77,17 @@ class Broadcast:
     async def _listener(self) -> None:
         while True:
             event = await self._backend.next_published()
-            for queue in list(self._subscribers.get(event.channel, [])):
-                await queue.put(event)
+            # for queue in list(self._subscribers.get(event.channel, [])):
+            #     await queue.put(event)
+
+            for qs in self._maching_queues(event):
+                for queue in qs:
+                    await queue.put(event)
+
+    def _maching_queues(self, event) -> List[Any]:
+        return [queue for channel, queue
+                in self._subscribers.items()
+                if self._backend.matches(channel, event)]
 
     async def publish(self, channel: str, message: Any) -> None:
         await self._backend.publish(channel, message)
